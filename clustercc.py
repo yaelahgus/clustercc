@@ -12,18 +12,17 @@ from sklearn.preprocessing import StandardScaler
 # Fungsi untuk memuat data
 @st.cache(allow_output_mutation=True)
 def load_data():
-    data = pd.read_csv('data/CCDATA.csv')  # Pastikan path sudah benar
+    data = pd.read_csv('data/CCDATA.csv')
     return data
 
 # Mempersiapkan data
 data = load_data()
 
-# Menampilkan kolom dataset untuk debugging
-st.write(data.columns)
-
-# Normalisasi data
+# Normalisasi data (menghindari fitur dengan rentang yang berbeda)
 scaler = StandardScaler()
-features = ['BALANCE', 'PURCHASES', 'CASH_ADVANCE', 'CREDIT_LIMIT', 'PURCHASES_FREQUENCY', 'AGE']
+
+# Kolom yang ada dalam dataset, tanpa kolom 'AGE'
+features = ['BALANCE', 'PURCHASES', 'CASH_ADVANCE', 'CREDIT_LIMIT', 'PURCHASES_FREQUENCY']
 data_scaled = scaler.fit_transform(data[features])
 
 # 1. Clustering dengan KMeans
@@ -37,8 +36,9 @@ gmm.fit(data_scaled)
 data['Probability'] = gmm.predict_proba(data_scaled).max(axis=1)  # Mengambil probabilitas tertinggi
 
 # 3. Filtering dengan Decision Tree
+# Membagi data untuk training dan testing
 X = data[features]
-y = data['Cluster']
+y = data['Cluster']  # Target adalah cluster yang dihasilkan dari KMeans
 
 # Split data
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
@@ -56,14 +56,12 @@ st.write(f"Akurasi Decision Tree: {accuracy:.2f}")
 
 # Menu untuk filtering
 st.sidebar.title("Filter Data")
-age_filter = st.sidebar.slider('Umur', min_value=18, max_value=100, value=(18, 30))
-purchase_filter = st.sidebar.slider('Pengeluaran Total', min_value=0, max_value=10000, value=(0, 1000))
-credit_limit_filter = st.sidebar.slider('Limit Kredit', min_value=0, max_value=50000, value=(0, 10000))
-transaction_frequency_filter = st.sidebar.slider('Frekuensi Transaksi', min_value=0, max_value=1, value=(0, 0.5))
+purchase_filter = st.sidebar.slider('Pengeluaran Total', min_value=0, max_value=int(data['PURCHASES'].max()), value=(0, int(data['PURCHASES'].max()/2)))
+credit_limit_filter = st.sidebar.slider('Limit Kredit', min_value=0, max_value=int(data['CREDIT_LIMIT'].max()), value=(0, int(data['CREDIT_LIMIT'].max()/2)))
+transaction_frequency_filter = st.sidebar.slider('Frekuensi Transaksi', min_value=0, max_value=1, value=(0.0, 0.5))
 
 # Filter data berdasarkan input pengguna
 filtered_data = data[
-    (data['AGE'].between(age_filter[0], age_filter[1])) &
     (data['PURCHASES'].between(purchase_filter[0], purchase_filter[1])) &
     (data['CREDIT_LIMIT'].between(credit_limit_filter[0], credit_limit_filter[1])) &
     (data['PURCHASES_FREQUENCY'].between(transaction_frequency_filter[0], transaction_frequency_filter[1]))
@@ -81,8 +79,7 @@ plt.xlabel('Saldo')
 plt.ylabel('Pengeluaran')
 plt.colorbar(label='Cluster')
 st.pyplot(plt)
-plt.clf()  # Menutup plot setelah ditampilkan
 
-# Menampilkan probabilitas keanggotaan cluster
+# Menampilkan probabilitas
 st.write("Probabilitas keanggotaan cluster untuk setiap pelanggan:")
 st.dataframe(data[['CUST_ID', 'Cluster', 'Probability']])
