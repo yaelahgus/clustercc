@@ -12,7 +12,9 @@ from sklearn.preprocessing import StandardScaler
 # Fungsi untuk memuat data
 @st.cache(allow_output_mutation=True)
 def load_data():
-    data = pd.read_csv('data/CCDATA.csv')
+    # Pastikan untuk mengganti jalur dengan jalur ke file Anda
+    data = pd.read_csv('data/CCDATA.csv')  # Ganti dengan path dataset Anda
+    data.fillna(0, inplace=True)  # Mengganti NaN dengan 0
     return data
 
 # Mempersiapkan data
@@ -20,9 +22,7 @@ data = load_data()
 
 # Normalisasi data (menghindari fitur dengan rentang yang berbeda)
 scaler = StandardScaler()
-
-# Kolom yang ada dalam dataset, tanpa kolom 'AGE'
-features = ['BALANCE', 'PURCHASES', 'CASH_ADVANCE', 'CREDIT_LIMIT', 'PURCHASES_FREQUENCY']
+features = ['BALANCE', 'PURCHASES', 'CASH_ADVANCE', 'CREDIT_LIMIT', 'PURCHASES_FREQUENCY', 'AGE']
 data_scaled = scaler.fit_transform(data[features])
 
 # 1. Clustering dengan KMeans
@@ -56,12 +56,14 @@ st.write(f"Akurasi Decision Tree: {accuracy:.2f}")
 
 # Menu untuk filtering
 st.sidebar.title("Filter Data")
-purchase_filter = st.sidebar.slider('Pengeluaran Total', min_value=0, max_value=int(data['PURCHASES'].max()), value=(0, int(data['PURCHASES'].max()/2)))
-credit_limit_filter = st.sidebar.slider('Limit Kredit', min_value=0, max_value=int(data['CREDIT_LIMIT'].max()), value=(0, int(data['CREDIT_LIMIT'].max()/2)))
-transaction_frequency_filter = st.sidebar.slider('Frekuensi Transaksi', min_value=0, max_value=1, value=(0.0, 0.5))
+age_filter = st.sidebar.slider('Umur', min_value=18, max_value=100, value=(18, 30))
+purchase_filter = st.sidebar.slider('Pengeluaran Total', min_value=0, max_value=10000, value=(0, 1000))
+credit_limit_filter = st.sidebar.slider('Limit Kredit', min_value=0, max_value=50000, value=(0, 10000))
+transaction_frequency_filter = st.sidebar.slider('Frekuensi Transaksi', min_value=0, max_value=100, value=(0, 10))
 
 # Filter data berdasarkan input pengguna
 filtered_data = data[
+    (data['AGE'].between(age_filter[0], age_filter[1])) &
     (data['PURCHASES'].between(purchase_filter[0], purchase_filter[1])) &
     (data['CREDIT_LIMIT'].between(credit_limit_filter[0], credit_limit_filter[1])) &
     (data['PURCHASES_FREQUENCY'].between(transaction_frequency_filter[0], transaction_frequency_filter[1]))
