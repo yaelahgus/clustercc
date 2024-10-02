@@ -12,7 +12,7 @@ from sklearn.metrics import accuracy_score
 @st.cache(allow_output_mutation=True)
 def load_data():
     # Pastikan untuk mengganti jalur dengan jalur ke file Anda
-    data = pd.read_csv('data/customers.csv')  # Ganti dengan path dataset Anda
+    data = pd.read_csv('data/CCDATA.csv')  # Ganti dengan path dataset Anda
     return data
 
 # Mempersiapkan data
