@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 
 # Fungsi untuk memuat data
-@st.cache(allow_output_mutation=True)
+@st.cache_data
 def load_data():
     # Pastikan untuk mengganti jalur dengan jalur ke file Anda
     data = pd.read_csv('data/CCDATA.csv')  # Ganti dengan path dataset Anda
@@ -22,7 +22,8 @@ data = load_data()
 
 # Normalisasi data (menghindari fitur dengan rentang yang berbeda)
 scaler = StandardScaler()
-features = ['BALANCE', 'PURCHASES', 'CASH_ADVANCE', 'CREDIT_LIMIT', 'PURCHASES_FREQUENCY', 'AGE']
+# Perbarui daftar features sesuai dengan kolom yang ada
+features = ['BALANCE', 'PURCHASES', 'CASH_ADVANCE', 'CREDIT_LIMIT', 'PURCHASES_FREQUENCY']
 data_scaled = scaler.fit_transform(data[features])
 
 # 1. Clustering dengan KMeans
