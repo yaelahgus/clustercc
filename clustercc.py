@@ -57,14 +57,12 @@ st.write(f"Akurasi Decision Tree: {accuracy:.2f}")
 
 # Menu untuk filtering
 st.sidebar.title("Filter Data")
-age_filter = st.sidebar.slider('Umur', min_value=18, max_value=100, value=(18, 30))
 purchase_filter = st.sidebar.slider('Pengeluaran Total', min_value=0, max_value=10000, value=(0, 1000))
 credit_limit_filter = st.sidebar.slider('Limit Kredit', min_value=0, max_value=50000, value=(0, 10000))
 transaction_frequency_filter = st.sidebar.slider('Frekuensi Transaksi', min_value=0, max_value=100, value=(0, 10))
 
 # Filter data berdasarkan input pengguna
 filtered_data = data[
-    (data['AGE'].between(age_filter[0], age_filter[1])) &
     (data['PURCHASES'].between(purchase_filter[0], purchase_filter[1])) &
     (data['CREDIT_LIMIT'].between(credit_limit_filter[0], credit_limit_filter[1])) &
     (data['PURCHASES_FREQUENCY'].between(transaction_frequency_filter[0], transaction_frequency_filter[1]))
